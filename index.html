@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
   <title>Chef Fraction Café — Equivalent Fractions</title>
   <style>
     :root{
@@ -32,6 +35,11 @@
       background:linear-gradient(180deg,var(--bg1),var(--bg2));
       color:var(--brown-dark);
       overflow:hidden;
+      touch-action:manipulation;
+    }
+
+    html, body, .game-shell{
+      overscroll-behavior:none;
     }
 
     .game-shell{
@@ -43,6 +51,10 @@
       display:flex;
       flex-direction:column;
       gap:8px;
+      overflow:hidden;
+      user-select:none;
+      -webkit-user-select:none;
+      -ms-user-select:none;
     }
 
     .topbar{
@@ -154,11 +166,41 @@
     }
 
     .order-fraction{
-      font-size:3rem;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      margin:8px 0;
+      min-height:86px;
+    }
+
+    .order-frac{
+      display:inline-flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      min-width:54px;
+      line-height:1;
+    }
+
+    .order-frac .num,
+    .order-frac .den{
+      display:block;
       font-weight:900;
       color:#c63d1f;
-      margin:8px 0;
+      font-size:3rem;
       line-height:1;
+      padding:0 8px;
+      text-align:center;
+    }
+
+    .order-frac .bar{
+      display:block;
+      width:100%;
+      min-width:42px;
+      height:4px;
+      background:#c63d1f;
+      border-radius:99px;
+      margin:4px 0;
     }
 
     .help-line{
@@ -258,12 +300,40 @@
     }
 
     .served-equation{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:54px;
+      line-height:1;
+    }
+
+    .served-frac{
+      display:inline-flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      min-width:48px;
+      color:inherit;
+    }
+
+    .served-frac .num,
+    .served-frac .den{
+      display:block;
       font-size:18px;
       font-weight:800;
-      opacity:.9;
+      line-height:1;
       text-align:center;
-      min-height:1.2em;
-      line-height:1.2;
+      padding:0 6px;
+    }
+
+    .served-frac .bar{
+      display:block;
+      width:100%;
+      min-width:38px;
+      height:3px;
+      background:currentColor;
+      border-radius:99px;
+      margin:3px 0;
     }
 
     .chef-bubble{
@@ -336,6 +406,82 @@
     .feedback.good{color:#1f7a2e}
     .feedback.bad{color:#b42318}
 
+    .feedback-row{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:16px;
+      flex-wrap:nowrap;
+    }
+
+    .feedback-equals{
+      font-size:32px;
+      font-weight:900;
+      line-height:1;
+    }
+
+    .feedback-frac,
+    .feedback-frac-large{
+      display:inline-flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      line-height:1;
+      vertical-align:middle;
+      flex:0 0 auto;
+      color:inherit;
+    }
+
+    .feedback-frac{
+      min-width:58px;
+    }
+
+    .feedback-frac-large{
+      min-width:64px;
+    }
+
+    .feedback-frac .num,
+    .feedback-frac .den,
+    .feedback-frac-large .num,
+    .feedback-frac-large .den{
+      display:block;
+      font-weight:900;
+      color:inherit;
+      line-height:1;
+      text-align:center;
+      padding:0 8px;
+    }
+
+    .feedback-frac .num,
+    .feedback-frac .den{
+      font-size:28px;
+    }
+
+    .feedback-frac-large .num,
+    .feedback-frac-large .den{
+      font-size:32px;
+    }
+
+    .feedback-frac .bar,
+    .feedback-frac-large .bar{
+      display:block;
+      width:100%;
+      background:currentColor;
+      border-radius:99px;
+    }
+
+    .feedback-frac .bar{
+      min-width:42px;
+      height:4px;
+      margin:4px 0;
+    }
+
+    .feedback-frac-large .bar{
+      min-width:50px;
+      height:4px;
+      margin:4px 0;
+    }
+
     .footer-credit{
       display:none;
     }
@@ -401,11 +547,18 @@
       .sub{font-size:14px}
       .controls{gap:8px}
       .game-btn{min-width:126px;padding:10px 12px;font-size:14px}
-      .order-fraction{font-size:1.8rem}
+      .order-frac .num,
+      .order-frac .den{font-size:1.8rem}
       .plate-svg-wrap{width:320px}
       .score-pill,.round-pill{padding:6px 10px;font-size:14px}
       .chef-photo{width:220px}
       .customer-photo{width:220px}
+      .feedback-frac .num,
+      .feedback-frac .den{font-size:20px}
+      .feedback-frac-large .num,
+      .feedback-frac-large .den{font-size:22px}
+      .served-frac .num,
+      .served-frac .den{font-size:16px}
     }
   </style>
 </head>
@@ -434,7 +587,7 @@
 
           <div class="order-card">
             <div class="order-line">Chef, I want</div>
-            <div class="order-fraction" id="orderFraction">1/2</div>
+            <div class="order-fraction" id="orderFraction"></div>
             <div class="order-line">of the pizza!</div>
             <div class="help-line">The pizza today has <span id="sliceCountText">8</span> slices.</div>
           </div>
@@ -516,6 +669,24 @@
     const wrongAudio = document.getElementById("wrongAudio");
 
     const SVG_NS = "http://www.w3.org/2000/svg";
+
+    const rightChefLines = [
+      "Ha! That order was hotter than my pizza oven!",
+      "Bing bong! Chef genius at work!",
+      "Mamma mia! You sliced that like a fraction ninja!",
+      "Woohoo! Even my spatula is impressed!",
+      "Perfect! The customer might ask for my autograph now!",
+      "Sizzling success! That pizza never stood a chance!"
+    ];
+
+    const wrongChefLines = [
+      "Uh-oh... my moustache would be worried if I had one!",
+      "Oopsy cheese! That slice count went on holiday!",
+      "Not quite! Even my pizza pan is giving me side-eye!",
+      "Aiyo, that order got extra drama today!",
+      "Close, but my tomato sauce says try again!",
+      "Whoops! The pizza is laughing at us a little bit!"
+    ];
 
     let audioCtx = null;
     function ensureAudioCtx(){
@@ -616,6 +787,32 @@
       return choice;
     }
 
+    function makeFractionHTML(n, d, cls = "order-frac") {
+      return `
+        <span class="${cls}">
+          <span class="num">${n}</span>
+          <span class="bar"></span>
+          <span class="den">${d}</span>
+        </span>
+      `;
+    }
+
+    function setOrderFraction(n, d) {
+      orderFraction.innerHTML = makeFractionHTML(n, d, "order-frac");
+    }
+
+    function fractionTextHTML(n, d){
+      return makeFractionHTML(n, d, "feedback-frac");
+    }
+
+    function servedFractionHTML(n, d){
+      return makeFractionHTML(n, d, "served-frac");
+    }
+
+    function randomFrom(arr){
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
     function polarToCartesian(cx, cy, r, angleDeg) {
       const angleRad = (angleDeg - 90) * Math.PI / 180;
       return {
@@ -645,9 +842,9 @@
       const n = selectedSliceIds.size;
       servedCount.textContent = String(n);
       if (currentQuestion) {
-        servedEquation.textContent = `${n}/${currentQuestion.pizzaSlices}`;
+        servedEquation.innerHTML = servedFractionHTML(n, currentQuestion.pizzaSlices);
       } else {
-        servedEquation.textContent = "";
+        servedEquation.innerHTML = "";
       }
     }
 
@@ -770,7 +967,7 @@
 
     function loadQuestion() {
       currentQuestion = getRandomUnusedQuestion();
-      orderFraction.textContent = currentQuestion.order;
+      setOrderFraction(currentQuestion.numerator, currentQuestion.denominator);
       sliceCountText.textContent = currentQuestion.pizzaSlices;
       chefBubble.textContent = `Today’s pizza has ${currentQuestion.pizzaSlices} slices. Click the correct number of pieces.`;
       feedback.className = "feedback";
@@ -785,7 +982,7 @@
       renderPizza(currentQuestion.pizzaSlices);
       feedback.className = "feedback";
       feedback.textContent = "Selection cleared.";
-      chefBubble.textContent = "Choose the pieces again, then press Check.";
+      chefBubble.textContent = "Okay okay... reset time. The pizza gets a second chance!";
     }
 
     function celebrate() {
@@ -827,14 +1024,29 @@
         score++;
         scoreText.textContent = String(score);
         feedback.className = "feedback good";
-        feedback.textContent = `✅ Order Served! ${currentQuestion.order} = ${correct}/${currentQuestion.pizzaSlices}`;
-        chefBubble.textContent = "Wonderful! That is the correct equivalent fraction.";
+        feedback.innerHTML = `
+          <span class="feedback-row">
+            <span>✅ Order Served!</span>
+            ${fractionTextHTML(currentQuestion.numerator, currentQuestion.denominator)}
+            <span class="feedback-equals">=</span>
+            ${makeFractionHTML(correct, currentQuestion.pizzaSlices, "feedback-frac-large")}
+          </span>
+        `;
+        chefBubble.textContent = randomFrom(rightChefLines);
         celebrate();
         playCorrect();
       } else {
         feedback.className = "feedback bad";
-        feedback.textContent = `❌ Not yet. ${currentQuestion.order} of a ${currentQuestion.pizzaSlices}-slice pizza is ${correct} piece(s).`;
-        chefBubble.textContent = "Try again or press Clear.";
+        feedback.innerHTML = `
+          <span class="feedback-row">
+            <span>❌ Not yet.</span>
+            ${fractionTextHTML(currentQuestion.numerator, currentQuestion.denominator)}
+            <span>of a ${currentQuestion.pizzaSlices}-slice pizza is</span>
+            <span style="font-size:28px;font-weight:900;">${correct}</span>
+            <span>piece(s).</span>
+          </span>
+        `;
+        chefBubble.textContent = randomFrom(wrongChefLines);
         playWrong();
       }
     }
@@ -844,7 +1056,7 @@
       if (questionNumber > 10) {
         feedback.className = "feedback good";
         feedback.textContent = `🎉 Round complete! Final score: ${score}/10. Starting a new round...`;
-        chefBubble.textContent = "Excellent work, Chef!";
+        chefBubble.textContent = "Phew! Chef survived another shift!";
         questionNumber = 1;
         score = 0;
         scoreText.textContent = "0";
@@ -852,6 +1064,23 @@
       }
       loadQuestion();
     }
+
+    // Block common zoom shortcuts inside page
+    window.addEventListener("wheel", (e) => {
+      if (e.ctrlKey) e.preventDefault();
+    }, { passive: false });
+
+    window.addEventListener("keydown", (e) => {
+      const ctrlOrMeta = e.ctrlKey || e.metaKey;
+      if (!ctrlOrMeta) return;
+      if (["+", "-", "=", "_", "0"].includes(e.key)) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    window.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
+    window.addEventListener("gesturechange", (e) => e.preventDefault(), { passive: false });
+    window.addEventListener("gestureend", (e) => e.preventDefault(), { passive: false });
 
     checkBtn.addEventListener("click", checkAnswer);
     clearBtn.addEventListener("click", clearSelection);
